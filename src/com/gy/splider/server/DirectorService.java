@@ -36,7 +36,15 @@ public class DirectorService extends BaseService{
 		Element elementid = this.doc.getElementById(id);
 		Elements movielist = elementid.getElementsByClass(Class).first().getElementsByClass("info");
 		for(int i=0;i<movielist.size();i++){
-			
+			 Element movie = movielist.get(i).getElementsByTag("a").first();
+			 String moviename = movie.text();
+			 String link = movie.attr("href");
+			 String[] splits = link.split("/");
+			 String doubanId = splits[splits.length-1];
+			 OriginEntity originEntity = new OriginEntity(doubanId, moviename,
+						OriginEntity.MOVIETYPE, link, OriginEntity.DIRECTORTYPE, this.paramId);
+			 DataStorage.AddData(originEntity);
+			 getData.add(originEntity);
 		}
 	}
 

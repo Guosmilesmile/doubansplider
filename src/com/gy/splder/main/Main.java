@@ -17,6 +17,10 @@ public class Main {
 		}*/
 		DirectorService directorService= new DirectorService("https://movie.douban.com","celebrity","1303915");
 		directorService.getRecentMovie();
-		
+		for(Entry<String, OriginEntity> item : DataStorage.getMovieStorage().entrySet()){
+			System.out.println(item.getKey());
+			System.out.println(item.getValue().getName());
+			System.out.println(item.getValue().getFromDoubanId());
+		}
 	}
 }
