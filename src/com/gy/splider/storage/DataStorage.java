@@ -18,11 +18,7 @@ public class DataStorage {
 	private static Map<String,OriginEntity> ActorStorage = new ConcurrentHashMap<String, OriginEntity>();
 	
 	public static List<Thread> getThreadList(){
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		
 		return threadlist;
 	}
 	/**

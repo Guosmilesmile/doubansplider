@@ -25,8 +25,9 @@ public class Main {
 			System.out.println(item.getValue().getName());
 			System.out.println(item.getValue().getFromDoubanId());
 		}*/
-		MainService mainService = new MainService("https://movie.douban.com", Global.WEBMOVIE, "26769734");
-		mainService.startActivity();
+		
+		MainService mainService = new MainService("https://movie.douban.com", Global.WEBMOVIE, "25757186");
+		//mainService.startActivity();
 		/*for(Entry<String, OriginEntity> item : DataStorage.getMovieStorage().entrySet()){
 			System.out.println(item.getKey());
 			System.out.println(item.getValue().getName());

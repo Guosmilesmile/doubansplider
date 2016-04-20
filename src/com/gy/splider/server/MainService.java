@@ -20,17 +20,22 @@ public class MainService extends BaseService{
 		Thread thread = new Thread(movieService);
 		thread.start();
 		try{
-			for(Thread thread2 : DataStorage.getThreadList()){
-				try {
-					thread2.join();
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
+			new Thread(){
+				public void run() {
+					synchronized (Global.OBJECT) {
+						try {
+							Global.OBJECT.wait();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					System.out.println(DataStorage.getTotalNumber());
+				};
+			}.start();
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		System.out.println(DataStorage.getTotalNumber());
+		
 	}
 	
 	public MainService(String movieUrl, String paramtype, String paramId) {
@@ -40,7 +45,7 @@ public class MainService extends BaseService{
 		this.paramId = paramId;
 		this.paramtype = paramtype;
 		Connection connect = Jsoup.connect(movieUrl + "/" + paramtype + "/"
-				+ paramId);
+				+ paramId).userAgent(Global.USERAGENT).proxy("183.131.104.250", 80).timeout(5000);
 		if (this.method == this.GETMETHOD) {
 			try {
 				this.doc = connect.get();

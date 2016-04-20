@@ -61,7 +61,8 @@ public class DirectorService extends BaseService implements Runnable{
 		this.paramId = paramId;
 		this.paramtype = paramtype;
 		Connection connect = Jsoup.connect(movieUrl + "/" + paramtype + "/"
-				+ paramId);
+				+ paramId).userAgent(
+						"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.64 Safari/537.31");;
 		System.out.println(movieUrl + "/" + paramtype + "/"+ paramId);
 		if (this.method == this.GETMETHOD) {
 			try {
@@ -87,7 +88,8 @@ public class DirectorService extends BaseService implements Runnable{
 		this.paramId = paramId;
 		this.paramtype = paramtype;
 		Connection connect = Jsoup.connect(movieUrl + "/" + paramtype + "/"
-				+ paramId);
+				+ paramId).userAgent(
+						"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.64 Safari/537.31");;
 		System.out.println(movieUrl + "/" + paramtype + "/"+ paramId);
 		if (this.method == this.GETMETHOD) {
 			try {
@@ -107,6 +109,11 @@ public class DirectorService extends BaseService implements Runnable{
 
 	@Override
 	public void run() {
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		if(DataStorage.getTotalNumber()<=Global.TOTALNUMBER){
 			for(int i = 0;i<this.getData.size();i++){
 				OriginEntity originEntity = this.getData.get(i);
@@ -141,6 +148,10 @@ public class DirectorService extends BaseService implements Runnable{
 				default:
 					break;
 				}
+			}
+		}else{
+			synchronized (Global.OBJECT) {
+				Global.OBJECT.notifyAll();
 			}
 		}
 	}
