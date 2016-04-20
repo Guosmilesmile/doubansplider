@@ -62,6 +62,7 @@ public class ScreenWriterService extends BaseService implements Runnable{
 		this.paramtype = paramtype;
 		Connection connect = Jsoup.connect(movieUrl + "/" + paramtype + "/"
 				+ paramId);
+		System.out.println(movieUrl + "/" + paramtype + "/"+ paramId);
 		if (this.method == this.GETMETHOD) {
 			try {
 				this.doc = connect.get();
@@ -87,6 +88,7 @@ public class ScreenWriterService extends BaseService implements Runnable{
 		this.paramtype = paramtype;
 		Connection connect = Jsoup.connect(movieUrl + "/" + paramtype + "/"
 				+ paramId);
+		System.out.println(movieUrl + "/" + paramtype + "/"+ paramId);
 		if (this.method == this.GETMETHOD) {
 			try {
 				this.doc = connect.get();
@@ -105,13 +107,14 @@ public class ScreenWriterService extends BaseService implements Runnable{
 
 	@Override
 	public void run() {
-		if(DataStorage.getTotalNumber()<=10){
+		if(DataStorage.getTotalNumber()<=Global.TOTALNUMBER){
 			for(int i = 0;i<this.getData.size();i++){
 				OriginEntity originEntity = this.getData.get(i);
 				switch (originEntity.getType()) {
 				case OriginEntity.MOVIETYPE:{
 					MovieService movieService = new MovieService(Global.WEBURL, Global.WEBMOVIE,originEntity.getDoubanId());
 					Thread thread = new Thread(movieService);
+					DataStorage.addThread(thread);
 					thread.start();
 				}
 				break;
@@ -124,11 +127,13 @@ public class ScreenWriterService extends BaseService implements Runnable{
 				case OriginEntity.ACTORTYPE:{
 					ActorService actorService = new ActorService(Global.WEBURL, Global.WEBACTOR,originEntity.getDoubanId());
 					Thread thread = new Thread(actorService);
+					DataStorage.addThread(thread);
 					thread.start();
 				}
 				case OriginEntity.SCREENWRITERTYPE:{
 					ScreenWriterService screenWriterService = new ScreenWriterService(Global.WEBURL, Global.WEBSCREENWIRTER,originEntity.getDoubanId());
 					Thread thread = new Thread(screenWriterService);
+					DataStorage.addThread(thread);
 					thread.start();
 				}
 				break;

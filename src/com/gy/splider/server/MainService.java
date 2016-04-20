@@ -19,12 +19,16 @@ public class MainService extends BaseService{
 		MovieService movieService = new MovieService(this.baseUrl, this.paramtype, this.paramId);
 		Thread thread = new Thread(movieService);
 		thread.start();
-		for(Thread thread2 : DataStorage.getThreadList()){
-			try {
-				thread2.join();
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+		try{
+			for(Thread thread2 : DataStorage.getThreadList()){
+				try {
+					thread2.join();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
+		}catch(Exception e){
+			e.printStackTrace();
 		}
 		System.out.println(DataStorage.getTotalNumber());
 	}
