@@ -11,6 +11,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.gy.splider.bean.OriginEntity;
+import com.gy.splider.global.Global;
 import com.gy.splider.storage.DataStorage;
 
 public class MovieService extends BaseService implements Runnable {
@@ -175,6 +176,9 @@ public class MovieService extends BaseService implements Runnable {
 				OriginEntity.MOVIETYPE, "/" + this.paramtype + "/"
 						+ this.paramId, 0, "");
 		DataStorage.AddData(originEntity);
+		getActor();
+		getScreenWrites();
+		getDirectors();
 	}
 
 	public MovieService(String movieUrl, String paramtype, String paramId) {
@@ -228,7 +232,38 @@ public class MovieService extends BaseService implements Runnable {
 
 	@Override
 	public void run() {
-
+		if(DataStorage.getTotalNumber()<=10){
+			for(int i = 0;i<this.getData.size();i++){
+				OriginEntity originEntity = this.getData.get(i);
+				switch (originEntity.getType()) {
+				case OriginEntity.MOVIETYPE:{
+					MovieService movieService = new MovieService(Global.WEBURL, Global.WEBMOVIE,originEntity.getDoubanId());
+					Thread thread = new Thread(movieService);
+					thread.start();
+				}
+				break;
+				case OriginEntity.DIRECTORTYPE:{
+					DirectorService directorService = new DirectorService(Global.WEBURL, Global.WEBDIRECTOR,originEntity.getDoubanId());
+					Thread thread = new Thread(directorService);
+					thread.start();
+				}
+				break;
+				case OriginEntity.ACTORTYPE:{
+					ActorService actorService = new ActorService(Global.WEBURL, Global.WEBACTOR,originEntity.getDoubanId());
+					Thread thread = new Thread(actorService);
+					thread.start();
+				}
+				case OriginEntity.SCREENWRITERTYPE:{
+					ScreenWriterService screenWriterService = new ScreenWriterService(Global.WEBURL, Global.WEBSCREENWIRTER,originEntity.getDoubanId());
+					Thread thread = new Thread(screenWriterService);
+					thread.start();
+				}
+				break;
+				default:
+					break;
+				}
+			}
+		}
 	}
 
 }

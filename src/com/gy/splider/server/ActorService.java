@@ -14,7 +14,7 @@ import com.gy.splider.bean.OriginEntity;
 import com.gy.splider.global.Global;
 import com.gy.splider.storage.DataStorage;
 
-public class DirectorService extends BaseService implements Runnable{
+public class ActorService extends BaseService implements Runnable{
 
 	/**
 	 * 该页面抓取的数据
@@ -26,7 +26,7 @@ public class DirectorService extends BaseService implements Runnable{
 		String directorname = this.doc.getElementById("content")
 				.getElementsByTag("h1").first().text();
 		OriginEntity originEntity = new OriginEntity(this.paramId, directorname,
-				OriginEntity.DIRECTORTYPE, "/" + this.paramtype + "/"
+				OriginEntity.ACTORTYPE, "/" + this.paramtype + "/"
 						+ this.paramId, 0, "");
 		DataStorage.AddData(originEntity);
 		getRecentMovie();
@@ -44,17 +44,17 @@ public class DirectorService extends BaseService implements Runnable{
 			 String[] splits = link.split("/");
 			 String doubanId = splits[splits.length-1];
 			 OriginEntity originEntity = new OriginEntity(doubanId, moviename,
-						OriginEntity.MOVIETYPE, link, OriginEntity.DIRECTORTYPE, this.paramId);
+						OriginEntity.MOVIETYPE, link, OriginEntity.ACTORTYPE, this.paramId);
 			 DataStorage.AddData(originEntity);
 			 getData.add(originEntity);
 		}
 	}
 
-	public DirectorService() {
+	public ActorService() {
 		super();
 	}
 
-	public DirectorService(String movieUrl, String paramtype, String paramId) {
+	public ActorService(String movieUrl, String paramtype, String paramId) {
 		super();
 		this.baseUrl = movieUrl;
 		this.method = this.GETMETHOD;
@@ -78,7 +78,7 @@ public class DirectorService extends BaseService implements Runnable{
 		initGetData();
 	}
 
-	public DirectorService(String movieUrl, int method, String paramtype,
+	public ActorService(String movieUrl, int method, String paramtype,
 			String paramId) {
 		super();
 		this.baseUrl = movieUrl;

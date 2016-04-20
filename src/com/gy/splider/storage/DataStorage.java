@@ -10,12 +10,28 @@ import com.gy.splider.bean.OriginEntity;
 
 public class DataStorage {
 	
+	private static List<Thread> threadlist = new ArrayList<Thread>();
 	private static int number = 0;
 	private static Map<String,OriginEntity> DirectorStorage = new ConcurrentHashMap<String, OriginEntity>();
 	private static Map<String,OriginEntity> MovieStorage = new ConcurrentHashMap<String, OriginEntity>();
 	private static Map<String,OriginEntity> ScreenWriteStorage = new ConcurrentHashMap<String, OriginEntity>();
 	private static Map<String,OriginEntity> ActorStorage = new ConcurrentHashMap<String, OriginEntity>();
 	
+	public static List<Thread> getThreadList(){
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		return threadlist;
+	}
+	/**
+	 * 添加线程
+	 * @param thread
+	 */
+	public static void addThread(Thread thread){
+		threadlist.add(thread);
+	}
 	/**
 	 * 添加数据
 	 * @param originEntity
@@ -50,7 +66,13 @@ public class DataStorage {
 			break;
 		}
 	}
-	
+	/**
+	 * 获取数据总数
+	 * @return
+	 */
+	public static synchronized int getTotalNumber(){
+		return DirectorStorage.size() + MovieStorage.size() + ScreenWriteStorage.size() + ActorStorage.size();
+	}
 	public static Map<String,OriginEntity> getDirectorStorage(){
 		return DirectorStorage;
 	}
