@@ -62,20 +62,33 @@ public class ActorService extends BaseService implements Runnable {
 		this.method = this.GETMETHOD;
 		this.paramId = paramId;
 		this.paramtype = paramtype;
-		Connection connect = Jsoup
-				.connect(movieUrl + "/" + paramtype + "/" + paramId)
-				.userAgent(
-						"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.64 Safari/537.31");
+		/*Connection connect = Global.getProxyConnection(movieUrl, paramtype,
+				paramId);
 		System.out.println(movieUrl + "/" + paramtype + "/" + paramId);
 		if (this.method == this.GETMETHOD) {
 			try {
 				this.doc = connect.get();
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.err.println("代理无法使用");
+				new ActorService(movieUrl, paramtype, paramId);
 			}
 		} else {
 			try {
 				this.doc = connect.post();
+			} catch (IOException e) {
+				System.err.println("代理无法使用");
+				new ActorService(movieUrl, paramtype, paramId);
+			}
+		}*/
+		if (this.method == this.GETMETHOD) {
+			try {
+				this.doc = Global.getProxyConnectionDocument(movieUrl, paramtype, paramId);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				this.doc = Global.postProxyConnectionDocument(movieUrl, paramtype, paramId);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -90,18 +103,33 @@ public class ActorService extends BaseService implements Runnable {
 		this.method = method;
 		this.paramId = paramId;
 		this.paramtype = paramtype;
-		Connection connect = Jsoup.connect(movieUrl + "/" + paramtype + "/"
-				+ paramId).header("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
+		/*Connection connect = Global.getProxyConnection(movieUrl, paramtype,
+				paramId);
 		System.out.println(movieUrl + "/" + paramtype + "/" + paramId);
 		if (this.method == this.GETMETHOD) {
 			try {
 				this.doc = connect.get();
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.err.println("代理无法使用");
+				new ActorService(movieUrl, paramtype, paramId);
 			}
 		} else {
 			try {
 				this.doc = connect.post();
+			} catch (IOException e) {
+				System.err.println("代理无法使用");
+				new ActorService(movieUrl, paramtype, paramId);
+			}
+		}*/
+		if (this.method == this.GETMETHOD) {
+			try {
+				this.doc = Global.getProxyConnectionDocument(movieUrl, paramtype, paramId);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				this.doc = Global.postProxyConnectionDocument(movieUrl, paramtype, paramId);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -111,55 +139,66 @@ public class ActorService extends BaseService implements Runnable {
 
 	@Override
 	public void run() {
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		if (DataStorage.getTotalNumber() <= Global.TOTALNUMBER) {
-			for (int i = 0; i < this.getData.size(); i++) {
-				OriginEntity originEntity = this.getData.get(i);
-				switch (originEntity.getType()) {
-				case OriginEntity.MOVIETYPE: {
+		System.out.println("actorService start");
+		for (int i = 0; i < this.getData.size(); i++) {
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			System.out.println("totalnumer now is "+DataStorage.getTotalNumber());
+			if (DataStorage.getTotalNumber() >= Global.TOTALNUMBER) {
+				synchronized (Global.OBJECT) {
+					Global.OBJECT.notifyAll();
+				}
+				break;
+			}
+			OriginEntity originEntity = this.getData.get(i);
+			switch (originEntity.getType()) {
+			case OriginEntity.MOVIETYPE: {
+				//if (!DataStorage.IsContain(originEntity)) {
+					System.out.println("new another movieService");
 					MovieService movieService = new MovieService(Global.WEBURL,
 							Global.WEBMOVIE, originEntity.getDoubanId());
 					Thread thread = new Thread(movieService);
-					DataStorage.addThread(thread);
 					thread.start();
-				}
-					break;
-				case OriginEntity.DIRECTORTYPE: {
+				//}
+			}
+				break;
+			case OriginEntity.DIRECTORTYPE: {
+				//if (!DataStorage.IsContain(originEntity)) {
+					System.out.println("new another directorService");
 					DirectorService directorService = new DirectorService(
 							Global.WEBURL, Global.WEBDIRECTOR,
 							originEntity.getDoubanId());
 					Thread thread = new Thread(directorService);
-					DataStorage.addThread(thread);
 					thread.start();
-				}
-					break;
-				case OriginEntity.ACTORTYPE: {
+				//}
+			}
+				break;
+			case OriginEntity.ACTORTYPE: {
+				//if (!DataStorage.IsContain(originEntity)) {
+					System.out.println("new another actorService");
 					ActorService actorService = new ActorService(Global.WEBURL,
 							Global.WEBACTOR, originEntity.getDoubanId());
 					Thread thread = new Thread(actorService);
-					DataStorage.addThread(thread);
 					thread.start();
-				}
-				case OriginEntity.SCREENWRITERTYPE: {
+				//}
+			}
+			case OriginEntity.SCREENWRITERTYPE: {
+				//if (!DataStorage.IsContain(originEntity)) {
+					System.out.println("new another screenWriterService");
 					ScreenWriterService screenWriterService = new ScreenWriterService(
 							Global.WEBURL, Global.WEBSCREENWIRTER,
 							originEntity.getDoubanId());
 					Thread thread = new Thread(screenWriterService);
-					DataStorage.addThread(thread);
 					thread.start();
-				}
-					break;
-				default:
-					break;
-				}
+				//}
+
 			}
-		} else {
-			synchronized (Global.OBJECT) {
-				Global.OBJECT.notifyAll();
+				break;
+			default:
+				break;
 			}
 		}
 	}

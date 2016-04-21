@@ -29,7 +29,8 @@ public class MainService extends BaseService{
 							e.printStackTrace();
 						}
 					}
-					System.out.println(DataStorage.getTotalNumber());
+					System.out.println("totalnumber is "+DataStorage.getTotalNumber());
+					DataStorage.PrintAllData();
 				};
 			}.start();
 		}catch(Exception e){
@@ -44,20 +45,37 @@ public class MainService extends BaseService{
 		this.method = this.GETMETHOD;
 		this.paramId = paramId;
 		this.paramtype = paramtype;
-		Connection connect = Jsoup.connect(movieUrl + "/" + paramtype + "/"
-				+ paramId).userAgent(Global.USERAGENT).proxy("183.131.104.250", 80).timeout(5000);
 		if (this.method == this.GETMETHOD) {
+			try {
+				this.doc = Global.getProxyConnectionDocument(movieUrl, paramtype, paramId);
+			} catch (IOException e) {
+				System.out.println("doc has problem");
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				this.doc = Global.postProxyConnectionDocument(movieUrl, paramtype, paramId);
+			} catch (IOException e) {
+				System.out.println("doc has problem");
+				e.printStackTrace();
+			}
+		}
+		//Connection connect = Global.getProxyConnection(movieUrl, paramtype, paramId);
+		//Connection connect = Jsoup.connect(movieUrl + "/" + paramtype + "/"+ paramId).userAgent(Global.USERAGENT);
+		
+		/*if (this.method == this.GETMETHOD) {
 			try {
 				this.doc = connect.get();
 			} catch (IOException e) {
-				e.printStackTrace();
+				System.err.println("代理无法使用");
+				new MainService(movieUrl, paramtype, paramId);
 			}
 		} else {
 			try {
 				this.doc = connect.post();
 			} catch (IOException e) {
-				e.printStackTrace();
+				new MainService(movieUrl, paramtype, paramId);
 			}
-		}
+		}*/
 	}
 }

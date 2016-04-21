@@ -14,39 +14,41 @@ import com.gy.splider.bean.OriginEntity;
 import com.gy.splider.global.Global;
 import com.gy.splider.storage.DataStorage;
 
-public class DirectorService extends BaseService implements Runnable{
+public class DirectorService extends BaseService implements Runnable {
 
 	/**
 	 * 该页面抓取的数据
 	 */
 	private List<OriginEntity> getData = new ArrayList<OriginEntity>();
-	
+
 	@Override
 	public void initGetData() {
 		String directorname = this.doc.getElementById("content")
 				.getElementsByTag("h1").first().text();
-		OriginEntity originEntity = new OriginEntity(this.paramId, directorname,
-				OriginEntity.DIRECTORTYPE, "/" + this.paramtype + "/"
-						+ this.paramId, 0, "");
+		OriginEntity originEntity = new OriginEntity(this.paramId,
+				directorname, OriginEntity.DIRECTORTYPE, "/" + this.paramtype
+						+ "/" + this.paramId, 0, "");
 		DataStorage.AddData(originEntity);
 		getRecentMovie();
 	}
-	
-	public void getRecentMovie(){
+
+	public void getRecentMovie() {
 		String id = "recent_movies";
-		String Class= "list-s" ;
+		String Class = "list-s";
 		Element elementid = this.doc.getElementById(id);
-		Elements movielist = elementid.getElementsByClass(Class).first().getElementsByClass("info");
-		for(int i=0;i<movielist.size();i++){
-			 Element movie = movielist.get(i).getElementsByTag("a").first();
-			 String moviename = movie.text();
-			 String link = movie.attr("href");
-			 String[] splits = link.split("/");
-			 String doubanId = splits[splits.length-1];
-			 OriginEntity originEntity = new OriginEntity(doubanId, moviename,
-						OriginEntity.MOVIETYPE, link, OriginEntity.DIRECTORTYPE, this.paramId);
-			 DataStorage.AddData(originEntity);
-			 getData.add(originEntity);
+		Elements movielist = elementid.getElementsByClass(Class).first()
+				.getElementsByClass("info");
+		for (int i = 0; i < movielist.size(); i++) {
+			Element movie = movielist.get(i).getElementsByTag("a").first();
+			String moviename = movie.text();
+			String link = movie.attr("href");
+			String[] splits = link.split("/");
+			String doubanId = splits[splits.length - 1];
+			OriginEntity originEntity = new OriginEntity(doubanId, moviename,
+					OriginEntity.MOVIETYPE, link, OriginEntity.DIRECTORTYPE,
+					this.paramId);
+			DataStorage.AddData(originEntity);
+			getData.add(originEntity);
 		}
 	}
 
@@ -60,19 +62,33 @@ public class DirectorService extends BaseService implements Runnable{
 		this.method = this.GETMETHOD;
 		this.paramId = paramId;
 		this.paramtype = paramtype;
-		Connection connect = Jsoup.connect(movieUrl + "/" + paramtype + "/"
-				+ paramId).userAgent(
-						"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.64 Safari/537.31");;
-		System.out.println(movieUrl + "/" + paramtype + "/"+ paramId);
+		/*Connection connect = Global.getProxyConnection(movieUrl, paramtype,
+				paramId);
+		System.out.println(movieUrl + "/" + paramtype + "/" + paramId);
 		if (this.method == this.GETMETHOD) {
 			try {
+				System.err.println("代理无法使用");
 				this.doc = connect.get();
+			} catch (IOException e) {
+				new DirectorService(movieUrl, paramtype, paramId);
+			}
+		} else {
+			try {
+				this.doc = connect.post();
+			} catch (IOException e) {
+				System.err.println("代理无法使用");
+				new DirectorService(movieUrl, paramtype, paramId);
+			}
+		}*/
+		if (this.method == this.GETMETHOD) {
+			try {
+				this.doc = Global.getProxyConnectionDocument(movieUrl, paramtype, paramId);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		} else {
 			try {
-				this.doc = connect.post();
+				this.doc = Global.postProxyConnectionDocument(movieUrl, paramtype, paramId);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -87,19 +103,33 @@ public class DirectorService extends BaseService implements Runnable{
 		this.method = method;
 		this.paramId = paramId;
 		this.paramtype = paramtype;
-		Connection connect = Jsoup.connect(movieUrl + "/" + paramtype + "/"
-				+ paramId).userAgent(
-						"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.64 Safari/537.31");;
-		System.out.println(movieUrl + "/" + paramtype + "/"+ paramId);
+		/*Connection connect = Global.getProxyConnection(movieUrl, paramtype,
+				paramId);
+		System.out.println(movieUrl + "/" + paramtype + "/" + paramId);
 		if (this.method == this.GETMETHOD) {
 			try {
 				this.doc = connect.get();
+			} catch (IOException e) {
+				System.err.println("代理无法使用");
+				new DirectorService(movieUrl, paramtype, paramId);
+			}
+		} else {
+			try {
+				this.doc = connect.post();
+			} catch (IOException e) {
+				System.err.println("代理无法使用");
+				new DirectorService(movieUrl, paramtype, paramId);
+			}
+		}*/
+		if (this.method == this.GETMETHOD) {
+			try {
+				this.doc = Global.getProxyConnectionDocument(movieUrl, paramtype, paramId);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		} else {
 			try {
-				this.doc = connect.post();
+				this.doc = Global.postProxyConnectionDocument(movieUrl, paramtype, paramId);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -109,49 +139,60 @@ public class DirectorService extends BaseService implements Runnable{
 
 	@Override
 	public void run() {
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		if(DataStorage.getTotalNumber()<=Global.TOTALNUMBER){
-			for(int i = 0;i<this.getData.size();i++){
-				OriginEntity originEntity = this.getData.get(i);
-				switch (originEntity.getType()) {
-				case OriginEntity.MOVIETYPE:{
-					MovieService movieService = new MovieService(Global.WEBURL, Global.WEBMOVIE,originEntity.getDoubanId());
-					Thread thread = new Thread(movieService);
-					DataStorage.addThread(thread);
-					thread.start();
-				}
-				break;
-				case OriginEntity.DIRECTORTYPE:{
-					DirectorService directorService = new DirectorService(Global.WEBURL, Global.WEBDIRECTOR,originEntity.getDoubanId());
-					Thread thread = new Thread(directorService);
-					DataStorage.addThread(thread);
-					thread.start();
-				}
-				break;
-				case OriginEntity.ACTORTYPE:{
-					ActorService actorService = new ActorService(Global.WEBURL, Global.WEBACTOR,originEntity.getDoubanId());
-					Thread thread = new Thread(actorService);
-					DataStorage.addThread(thread);
-					thread.start();
-				}
-				case OriginEntity.SCREENWRITERTYPE:{
-					ScreenWriterService screenWriterService = new ScreenWriterService(Global.WEBURL, Global.WEBSCREENWIRTER,originEntity.getDoubanId());
-					Thread thread = new Thread(screenWriterService);
-					DataStorage.addThread(thread);
-					thread.start();
-				}
-				break;
-				default:
-					break;
-				}
+
+		for (int i = 0; i < this.getData.size(); i++) {
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-		}else{
-			synchronized (Global.OBJECT) {
-				Global.OBJECT.notifyAll();
+			if (DataStorage.getTotalNumber() >= Global.TOTALNUMBER) {
+				synchronized (Global.OBJECT) {
+					Global.OBJECT.notifyAll();
+				}
+				break;
+			}
+			OriginEntity originEntity = this.getData.get(i);
+			switch (originEntity.getType()) {
+			case OriginEntity.MOVIETYPE: {
+				//if (!DataStorage.IsContain(originEntity)) {
+					MovieService movieService = new MovieService(Global.WEBURL,
+							Global.WEBMOVIE, originEntity.getDoubanId());
+					Thread thread = new Thread(movieService);
+					thread.start();
+				//}
+			}
+				break;
+			case OriginEntity.DIRECTORTYPE: {
+				//if (!DataStorage.IsContain(originEntity)) {
+					DirectorService directorService = new DirectorService(
+							Global.WEBURL, Global.WEBDIRECTOR,
+							originEntity.getDoubanId());
+					Thread thread = new Thread(directorService);
+					thread.start();
+				//}
+			}
+				break;
+			case OriginEntity.ACTORTYPE: {
+				//if (!DataStorage.IsContain(originEntity)) {
+					ActorService actorService = new ActorService(Global.WEBURL,
+							Global.WEBACTOR, originEntity.getDoubanId());
+					Thread thread = new Thread(actorService);
+					thread.start();
+				//}
+			}
+			case OriginEntity.SCREENWRITERTYPE: {
+				//if (!DataStorage.IsContain(originEntity)) {
+					ScreenWriterService screenWriterService = new ScreenWriterService(
+							Global.WEBURL, Global.WEBSCREENWIRTER,
+							originEntity.getDoubanId());
+					Thread thread = new Thread(screenWriterService);
+					thread.start();
+				//}
+			}
+				break;
+			default:
+				break;
 			}
 		}
 	}

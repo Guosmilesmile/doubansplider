@@ -12,6 +12,10 @@ import com.gy.splider.storage.DataStorage;
 
 public class Main {
 	public static void main(String[] args) {
+		System.out.println("Service start,loading......");
+		MainService mainService = new MainService("https://movie.douban.com", Global.WEBMOVIE, "10791575");
+		mainService.startActivity();
+		//System.out.println(DataStorage.getTotalNumber());
 		/*MovieService movieService = new MovieService("https://movie.douban.com","subject","4301662");
 		movieService.getActor();
 		for(Entry<String, OriginEntity> item : DataStorage.getActorStorage().entrySet()){
@@ -25,9 +29,15 @@ public class Main {
 			System.out.println(item.getValue().getName());
 			System.out.println(item.getValue().getFromDoubanId());
 		}*/
+		/*System.setProperty("http.maxRedirects", "50");  
+	    System.getProperties().setProperty("proxySet", "true");
+	    System.getProperties().setProperty("http.proxyHost", "58.246.242.154");  
+        System.getProperties().setProperty("http.proxyPort", "8080");*/
 		
-		MainService mainService = new MainService("https://movie.douban.com", Global.WEBMOVIE, "25757186");
-		//mainService.startActivity();
+		
+		
+		
+		
 		/*for(Entry<String, OriginEntity> item : DataStorage.getMovieStorage().entrySet()){
 			System.out.println(item.getKey());
 			System.out.println(item.getValue().getName());
